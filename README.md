@@ -34,6 +34,13 @@ The app demonstrates **navigation, state management, forms, search, and modern U
 - [React Native Paper](https://callstack.github.io/react-native-paper/) for UI components  
 - TypeScript
 
----
+##  How to Run
+
+1. Install dependencies:
+   ```bash
+   npm install
+
+## How to start;
+   npx expo start
 
 ## Project Structure
