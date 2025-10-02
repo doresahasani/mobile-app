@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Button, ScrollView, StyleSheet } from "react-native";
+import SearchBar from "./components/SearchBar";
 
-export default function HomeScreen({ navigation }: any) {
+export default function HomeScreen({ navigation, route }: any) {
     const [users, setUsers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [search, setSearch] = useState("");
 
     useEffect(() => {
         fetch("https://jsonplaceholder.typicode.com/users")
@@ -15,6 +17,19 @@ export default function HomeScreen({ navigation }: any) {
             .catch(() => setLoading(false));
     }, []);
 
+    useEffect(() => {
+        if (route.params?.newUser) {
+            setUsers((prev) => [route.params.newUser, ...prev]);
+            navigation.setParams({ newUser: undefined });
+        }
+    }, [route.params?.newUser]);
+
+    const filteredUsers = users.filter(
+        (u) =>
+            u.name.toLowerCase().includes(search.toLowerCase()) ||
+            u.email.toLowerCase().includes(search.toLowerCase())
+    );
+
     if (loading) {
         return (
             <View style={styles.center}>
@@ -25,6 +40,12 @@ export default function HomeScreen({ navigation }: any) {
 
     return (
         <ScrollView style={styles.container}>
+            <SearchBar
+                value={search}
+                onChangeText={setSearch}
+                placeholder="Search by name or email..."
+            />
+
             <Button
                 title="➕ Add User"
                 onPress={() =>
@@ -36,7 +57,7 @@ export default function HomeScreen({ navigation }: any) {
                 }
             />
 
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
                 <View key={user.id} style={styles.card}>
                     <Text style={styles.name}>{user.name}</Text>
                     <Text>{user.email}</Text>
@@ -50,6 +71,12 @@ export default function HomeScreen({ navigation }: any) {
                     />
                 </View>
             ))}
+
+            {filteredUsers.length === 0 && (
+                <View style={styles.center}>
+                    <Text>No users found.</Text>
+                </View>
+            )}
         </ScrollView>
     );
 }
