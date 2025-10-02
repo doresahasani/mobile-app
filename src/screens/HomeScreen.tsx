@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, ScrollView, StyleSheet } from "react-native";
-import SearchBar from "./components/SearchBar";
+import { View, Text, Button, ScrollView, StyleSheet, Alert } from "react-native";
+import SearchBar from "../components/SearchBar";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../store/store";
+import { setUsers, addUser, deleteUser } from "../store/usersSlice";
 
 export default function HomeScreen({ navigation, route }: any) {
-    const [users, setUsers] = useState<any[]>([]);
+    const dispatch = useDispatch();
+    const users = useSelector((state: RootState) => state.users.users);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
 
@@ -11,18 +15,18 @@ export default function HomeScreen({ navigation, route }: any) {
         fetch("https://jsonplaceholder.typicode.com/users")
             .then((res) => res.json())
             .then((data) => {
-                setUsers(data);
+                dispatch(setUsers(data));
                 setLoading(false);
             })
             .catch(() => setLoading(false));
-    }, []);
+    }, [dispatch]);
 
     useEffect(() => {
         if (route.params?.newUser) {
-            setUsers((prev) => [route.params.newUser, ...prev]);
+            dispatch(addUser(route.params.newUser));
             navigation.setParams({ newUser: undefined });
         }
-    }, [route.params?.newUser]);
+    }, [route.params?.newUser, dispatch, navigation]);
 
     const filteredUsers = users.filter(
         (u) =>
@@ -38,6 +42,11 @@ export default function HomeScreen({ navigation, route }: any) {
         );
     }
 
+    const handleDelete = (id: number) => {
+        dispatch(deleteUser(id));
+        Alert.alert("Deleted", `User u fshi me sukses!`);
+    };
+
     return (
         <ScrollView style={styles.container}>
             <SearchBar
@@ -51,7 +60,7 @@ export default function HomeScreen({ navigation, route }: any) {
                 onPress={() =>
                     navigation.navigate("AddUser", {
                         onAdd: (newUser: any) => {
-                            setUsers((prev) => [newUser, ...prev]);
+                            dispatch(addUser(newUser));
                         },
                     })
                 }
@@ -68,6 +77,17 @@ export default function HomeScreen({ navigation, route }: any) {
                         onPress={() =>
                             navigation.navigate("Details", { userId: user.id })
                         }
+                    />
+
+                    <Button
+                        title="✏️ Update"
+                        onPress={() => navigation.navigate("UpdateUser", { user })}
+                    />
+
+                    <Button
+                        title="🗑️ Delete"
+                        color="red"
+                        onPress={() => handleDelete(user.id)}
                     />
                 </View>
             ))}
