@@ -1,22 +1,19 @@
 import React, { useState } from "react";
-import {
-    View,
-    Text,
-    TextInput,
-    Button,
-    StyleSheet,
-    Alert,
-    ScrollView,
-} from "react-native";
+import { View, StyleSheet, Alert } from "react-native";
+import { TextInput, Button, Title } from "react-native-paper";
 
 export default function AddUserScreen({ navigation, route }: any) {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
+    const [website, setWebsite] = useState("");
     const [company, setCompany] = useState("");
+    const [street, setStreet] = useState("");
+    const [city, setCity] = useState("");
 
-    const handleSubmit = () => {
-        if (!name.trim() || !email.trim()) {
-            Alert.alert("Validation", "Name and Email are required!");
+    const handleAddUser = () => {
+        if (!name || !email) {
+            Alert.alert("Error", "Name and email are required!");
             return;
         }
 
@@ -24,7 +21,10 @@ export default function AddUserScreen({ navigation, route }: any) {
             id: Date.now(),
             name,
             email,
+            phone,
+            website,
             company: { name: company },
+            address: { street, city },
         };
 
         if (route.params?.onAdd) {
@@ -35,53 +35,27 @@ export default function AddUserScreen({ navigation, route }: any) {
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            <Text style={styles.title}>Add New User</Text>
+        <View style={styles.container}>
+            <Title style={styles.title}>Add New User</Title>
 
-            <TextInput
-                style={styles.input}
-                placeholder="Name *"
-                value={name}
-                onChangeText={setName}
-            />
+            <TextInput label="Name" value={name} onChangeText={setName} style={styles.input} mode="outlined" />
+            <TextInput label="Email" value={email} onChangeText={setEmail} style={styles.input} mode="outlined" />
+            <TextInput label="Phone" value={phone} onChangeText={setPhone} style={styles.input} mode="outlined" />
+            <TextInput label="Website" value={website} onChangeText={setWebsite} style={styles.input} mode="outlined" />
+            <TextInput label="Company" value={company} onChangeText={setCompany} style={styles.input} mode="outlined" />
+            <TextInput label="Street" value={street} onChangeText={setStreet} style={styles.input} mode="outlined" />
+            <TextInput label="City" value={city} onChangeText={setCity} style={styles.input} mode="outlined" />
 
-            <TextInput
-                style={styles.input}
-                placeholder="Email *"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-            />
-
-            <TextInput
-                style={styles.input}
-                placeholder="Company"
-                value={company}
-                onChangeText={setCompany}
-            />
-
-            <Button title="Add User" onPress={handleSubmit} />
-        </ScrollView>
+            <Button mode="contained" onPress={handleAddUser} style={styles.button}>
+                Save
+            </Button>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        padding: 16,
-        flexGrow: 1,
-        justifyContent: "center",
-    },
-    title: {
-        fontSize: 22,
-        fontWeight: "bold",
-        marginBottom: 20,
-        textAlign: "center",
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: "#ccc",
-        borderRadius: 8,
-        padding: 12,
-        marginBottom: 14,
-    },
+    container: { flex: 1, padding: 20, backgroundColor: "#fff" },
+    title: { marginBottom: 20, textAlign: "center" },
+    input: { marginBottom: 12 },
+    button: { marginTop: 10 },
 });

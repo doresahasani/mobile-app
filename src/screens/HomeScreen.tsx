@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, ScrollView, StyleSheet, Alert } from "react-native";
-import SearchBar from "../components/SearchBar";
+import { ScrollView, StyleSheet } from "react-native";
+import { Card, Title, Paragraph, Button, TextInput } from "react-native-paper";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
 import { setUsers, addUser, deleteUser } from "../store/usersSlice";
@@ -35,28 +35,22 @@ export default function HomeScreen({ navigation, route }: any) {
     );
 
     if (loading) {
-        return (
-            <View style={styles.center}>
-                <Text>Loading users...</Text>
-            </View>
-        );
+        return <Paragraph style={{ textAlign: "center", marginTop: 30 }}>Loading...</Paragraph>;
     }
-
-    const handleDelete = (id: number) => {
-        dispatch(deleteUser(id));
-        Alert.alert("Deleted", `User u fshi me sukses!`);
-    };
 
     return (
         <ScrollView style={styles.container}>
-            <SearchBar
+            <TextInput
+                label="Search"
                 value={search}
                 onChangeText={setSearch}
-                placeholder="Search by name or email..."
+                style={styles.search}
+                mode="outlined"
             />
 
             <Button
-                title="➕ Add User"
+                mode="contained"
+                style={styles.addButton}
                 onPress={() =>
                     navigation.navigate("AddUser", {
                         onAdd: (newUser: any) => {
@@ -64,38 +58,35 @@ export default function HomeScreen({ navigation, route }: any) {
                         },
                     })
                 }
-            />
+            >
+                ➕ Add User
+            </Button>
 
             {filteredUsers.map((user) => (
-                <View key={user.id} style={styles.card}>
-                    <Text style={styles.name}>{user.name}</Text>
-                    <Text>{user.email}</Text>
-                    <Text>{user.company?.name}</Text>
-
-                    <Button
-                        title="View Details"
-                        onPress={() =>
-                            navigation.navigate("Details", { userId: user.id })
-                        }
-                    />
-
-                    <Button
-                        title="✏️ Update"
-                        onPress={() => navigation.navigate("UpdateUser", { user })}
-                    />
-
-                    <Button
-                        title="🗑️ Delete"
-                        color="red"
-                        onPress={() => handleDelete(user.id)}
-                    />
-                </View>
+                <Card style={styles.card} key={user.id}>
+                    <Card.Content>
+                        <Title>{user.name}</Title>
+                        <Paragraph>{user.email}</Paragraph>
+                        <Paragraph>{user.company?.name}</Paragraph>
+                    </Card.Content>
+                    <Card.Actions style={styles.actions}>
+                        <Button onPress={() => navigation.navigate("Details", { userId: user.id })}>
+                            Details
+                        </Button>
+                        <Button onPress={() => navigation.navigate("UpdateUser", { user })}>
+                            Update
+                        </Button>
+                        <Button color="red" onPress={() => dispatch(deleteUser(user.id))}>
+                            Delete
+                        </Button>
+                    </Card.Actions>
+                </Card>
             ))}
 
             {filteredUsers.length === 0 && (
-                <View style={styles.center}>
-                    <Text>No users found.</Text>
-                </View>
+                <Paragraph style={{ textAlign: "center", marginTop: 20 }}>
+                    No users found.
+                </Paragraph>
             )}
         </ScrollView>
     );
@@ -103,13 +94,8 @@ export default function HomeScreen({ navigation, route }: any) {
 
 const styles = StyleSheet.create({
     container: { padding: 16 },
-    center: { flex: 1, alignItems: "center", justifyContent: "center" },
-    card: {
-        padding: 12,
-        marginBottom: 12,
-        borderWidth: 1,
-        borderColor: "#ccc",
-        borderRadius: 8,
-    },
-    name: { fontWeight: "bold", marginBottom: 4 },
+    search: { marginBottom: 16 },
+    addButton: { marginBottom: 16 },
+    card: { marginBottom: 16 },
+    actions: { justifyContent: "space-between" },
 });
